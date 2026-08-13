@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <!-- 移动端关键：宽度跟随设备、禁止缩放，让页面在手机上不用横向滚动 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#151a2e">
+  <meta name="description" content="个人工具箱 —— 工具 · 硬件 · 项目入口">
+
+  <!-- PWA 三件套之清单：浏览器靠它识别"这是可安装的 App" -->
+  <link rel="manifest" href="./manifest.json">
+
+  <!-- iOS 专属：全屏 / 图标 / 状态栏样式，安卓走 manifest 就够 -->
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <!-- 主题色兜底，避免闪烁 -->
+  <style>
+    html { background: #151a2e; }
+  </style>
+
+  <link rel="stylesheet" href="./css/style.css">
+  <title>个人工具箱</title>
+</head>
+<body>
+  <!-- 顶部标题栏 -->
+  <header class="app-header">
+    <h1>🧰 个人工具箱</h1>
+    <span class="app-status" id="status-badge">离线</span>
+  </header>
+
+  <!-- 主内容区：三个模块页面，由 js/app.js 切换显隐 -->
+  <main id="main">
+
+    <!-- ============ 工具模块 ============ -->
+    <section class="page" data-page="tools">
+      <h2 class="page-title">工具</h2>
+      <p class="page-desc">数据存本机，断网也能用</p>
+
+      <div class="card">
+        <h3 class="card-title">📝 快速笔记</h3>
+        <textarea id="note-input" class="input" rows="3" placeholder="写点什么…"></textarea>
+        <button id="note-add" class="btn btn-primary">保存笔记</button>
+        <ul id="note-list" class="list"></ul>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title">✅ 清单</h3>
+        <div class="row">
+          <input id="todo-input" class="input flex" placeholder="加一项待办…">
+          <button id="todo-add" class="btn btn-primary">添加</button>
+        </div>
+        <ul id="todo-list" class="list"></ul>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title">⏰ 提醒</h3>
+        <div class="col">
+          <input id="remind-time" class="input" type="datetime-local">
+          <input id="remind-text" class="input" placeholder="提醒内容">
+          <button id="remind-add" class="btn btn-primary">设提醒</button>
+        </div>
+        <ul id="remind-list" class="list"></ul>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title">⏱️ 计时</h3>
+        <div class="timer-display" id="timer-display">00:00</div>
+        <div class="row" style="justify-content:center;">
+          <button id="timer-toggle" class="btn btn-primary">开始</button>
+          <button id="timer-reset" class="btn">重置</button>
+        </div>
+        <div class="row" style="justify-content:center;margin-top:12px;">
+          <button class="btn timer-preset is-active" data-min="0">秒表</button>
+          <button class="btn timer-preset" data-min="1">1分</button>
+          <button class="btn timer-preset" data-min="5">5分</button>
+          <button class="btn timer-preset" data-min="25">25分</button>
+        </div>
+        <p class="mono" id="timer-tip">秒表模式：无限计时；选分钟数 → 倒计时</p>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title">🔳 二维码生成</h3>
+        <input id="qr-input" class="input" placeholder="粘贴网址或文字…">
+        <div class="row">
+          <button id="qr-gen" class="btn btn-primary flex" style="margin-bottom:0;">生成二维码</button>
+        </div>
+        <div id="qr-out" class="qr-out" hidden>
+          <canvas id="qr-canvas"></canvas>
+          <button id="qr-save" class="btn" style="width:100%;">保存图片</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title">⚙️ 设置</h3>
+        <div class="row" style="justify-content:space-between;margin-bottom:14px;">
+          <span>桌面通知</span>
+          <button id="notif-btn" class="btn">开启通知</button>
+        </div>
+        <div class="col">
+          <span style="margin-bottom:8px;">主题色</span>
+          <div id="theme-row" class="row">
+            <button class="swatch" data-accent="#6c8cff" style="background:#6c8cff"></button>
+            <button class="swatch" data-accent="#ffb86b" style="background:#ffb86b"></button>
+            <button class="swatch" data-accent="#7ee2a8" style="background:#7ee2a8"></button>
+            <button class="swatch" data-accent="#ff7a8a" style="background:#ff7a8a"></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 硬件模块 ============ -->
+    <section class="page" data-page="hardware" hidden>
+      <h2 class="page-title">硬件</h2>
+      <p class="page-desc">相机 / 定位 / 录音（需 HTTPS 或本机环境）</p>
+
+      <div class="card">
+        <h3 class="card-title">📷 相机</h3>
+        <video id="cam-view" class="cam" autoplay playsinline muted></video>
+        <canvas id="cam-shot" class="cam" hidden></canvas>
+        <div class="row">
+          <button id="cam-toggle" class="btn">打开相机</button>
+          <button id="cam-shoot" class="btn btn-primary" disabled>拍照</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title">📍 定位</h3>
+        <button id="gps-get" class="btn">获取当前位置</button>
+        <p id="gps-out" class="mono"></p>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title">🎙️ 录音</h3>
+        <button id="rec-toggle" class="btn">开始录音</button>
+        <p id="rec-state" class="mono"></p>
+        <audio id="rec-play" controls hidden></audio>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title">🔍 扫码</h3>
+        <video id="scan-view" class="cam" autoplay playsinline muted hidden></video>
+        <div class="row">
+          <button id="scan-toggle" class="btn">打开扫码</button>
+        </div>
+        <p id="scan-out" class="mono"></p>
+      </div>
+    </section>
+
+    <!-- ============ 项目入口模块 ============ -->
+    <section class="page" data-page="projects" hidden>
+      <h2 class="page-title">项目入口</h2>
+      <p class="page-desc">点卡片直达你的项目</p>
+      <div id="project-grid" class="grid"></div>
+    </section>
+  </main>
+
+  <!-- 底部导航栏：移动 App 的标准交互 -->
+  <nav class="bottom-nav">
+    <button class="nav-btn is-active" data-nav="tools">
+      <span class="nav-icon">🛠️</span><span class="nav-label">工具</span>
+    </button>
+    <button class="nav-btn" data-nav="hardware">
+      <span class="nav-icon">📡</span><span class="nav-label">硬件</span>
+    </button>
+    <button class="nav-btn" data-nav="projects">
+      <span class="nav-icon">🗂️</span><span class="nav-label">项目</span>
+    </button>
+  </nav>
+
+  <!-- PWA 三件套之注册：激活 Service Worker 离线能力，见 sw.js -->
+  <!-- 第三方库：需在模块之前加载 -->
+  <script src="./js/lib/jsQR.js"></script>
+  <script src="./js/lib/qrcode.js"></script>
+  <script src="./js/app.js"></script>
+  <script src="./js/tools.js"></script>
+  <script src="./js/hardware.js"></script>
+  <script src="./js/projects.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').then(reg => {
+          console.log('SW 注册成功，scope =', reg.scope);
+        }).catch(err => console.error('SW 注册失败', err));
+      });
+    }
+  </script>
+</body>
+</html>

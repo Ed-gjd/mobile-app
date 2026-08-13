@@ -1,0 +1,11 @@
+# 密钥与证书（本机专用，绝不能提交）
+*.pem
+*.csr
+*.srl
+
+# Python
+__pycache__/
+*.pyc
+
+# 日志
+*.log
